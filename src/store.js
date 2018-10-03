@@ -10,7 +10,7 @@ export default new Vuex.Store({
   },
 
   getters: {
-    usd: state => state.currencies.find(a => a.cc === 'USD'),
+    currentCourse: state => state.currencies.find(a => a.cc === 'USD'),
   },
 
   mutations: {

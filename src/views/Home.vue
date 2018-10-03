@@ -1,7 +1,28 @@
 <template>
   <div class="home" :class="{'is-waiting': loading}">
-    <div v-if="usd">
-      <h1>{{usd.txt}}: {{usd.rate}}</h1>
+    <div v-if="currentCourse">
+      <table>
+        <tr>
+          <td><strong>Курс USD на сегодня: </strong></td>
+          <td>{{currentCourse.rate}} <a target="_blank" href="https://bank.gov.ua/control/uk/curmetal/detail/currency?period=daily">сайт НБУ</a></td>
+        </tr>
+        <tr>
+          <td><strong>Курс в договоре:</strong></td>
+          <td><input type="number" v-model="baseСourse"></td>
+        </tr>
+        <tr>
+          <td><strong>Коэффициент:</strong></td>
+          <td>{{ coefficienе }}</td>
+        </tr>
+        <tr>
+          <td><strong>Ваш базовый блатеж:</strong></td>
+          <td><input type="number" v-model="basePayment"></td>
+        </tr>
+        <tr class="result">
+          <td><strong>Ваш платеж:</strong></td>
+          <td><strong>{{ yourPayment }} грн</strong></td>
+        </tr>
+      </table>
     </div>
   </div>
 </template>
@@ -14,8 +35,22 @@
     name: 'home',
     mixins: [loader],
 
+    data() {
+      return {
+        baseСourse: 26.866717,
+        basePayment: 45373,
+      };
+    },
+
     computed: {
-      ...mapGetters(['usd']),
+      ...mapGetters(['currentCourse']),
+      coefficienе() {
+        return this.currentCourse.rate / this.baseСourse;
+      },
+      yourPayment() {
+        const payment = this.coefficienе * this.basePayment;
+        return Math.round(payment * 100) / 100;
+      },
     },
 
     async mounted() {
@@ -44,7 +79,40 @@
   }
 
   .home {
-    min-height: 100vh
+    min-height: 100vh;
+    text-align: center;
+    font-size: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    a {
+      font-size: 16px;
+    }
+
+    input[type="number"] {
+      font-family: 'Avenir', Helvetica, Arial, sans-serif;
+      font-size: 20px;
+      padding: 0 10px;
+      margin-left: -10px;
+      border: 0;
+      border-bottom: 1px solid #ccc;
+      outline: none;
+    }
+  }
+
+  .result {
+    font-size: 26px;
+  }
+
+  table {
+    margin: auto;
+    text-align: left;
+
+    td {
+      padding-right: 20px;
+      padding-bottom: 10px;
+    }
   }
 
   $main-color: #ccc;
