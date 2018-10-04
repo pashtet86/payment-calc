@@ -11,6 +11,8 @@ export default new Vuex.Store({
 
   getters: {
     currentCourse: state => state.currencies.find(a => a.cc === 'USD'),
+    savedCourse: state => state.route.query.c,
+    savedPayment: state => state.route.query.p,
   },
 
   mutations: {

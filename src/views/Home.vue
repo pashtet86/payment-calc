@@ -8,7 +8,7 @@
         </tr>
         <tr>
           <td><strong>Курс в договоре:</strong></td>
-          <td><input type="number" v-model="baseСourse"></td>
+          <td><input @change="changed" type="number" v-model="baseСourse"></td>
         </tr>
         <tr>
           <td><strong>Коэффициент:</strong></td>
@@ -16,7 +16,7 @@
         </tr>
         <tr>
           <td><strong>Ваш базовый блатеж:</strong></td>
-          <td><input type="number" v-model="basePayment"></td>
+          <td><input @change="changed" type="number" v-model="basePayment"></td>
         </tr>
         <tr class="result">
           <td><strong>Ваш платеж:</strong></td>
@@ -29,6 +29,7 @@
 
 <script>
   import { mapGetters } from 'vuex';
+  import roundTo from 'round-to';
   import loader from '@/mixins/loader';
 
   export default {
@@ -37,32 +38,50 @@
 
     data() {
       return {
-        baseСourse: 26.866717,
-        basePayment: 45373,
+        baseСourse: null,
+        basePayment: null,
       };
     },
 
     computed: {
-      ...mapGetters(['currentCourse']),
+      ...mapGetters(['currentCourse', 'savedCourse', 'savedPayment']),
       coefficienе() {
-        return this.currentCourse.rate / this.baseСourse;
+        return Math.round((this.currentCourse.rate / this.baseСourse) * 1000000) / 1000000;
       },
       yourPayment() {
         const payment = this.coefficienе * this.basePayment;
-        return Math.round(payment * 100) / 100;
+        return roundTo(payment, 2);
       },
     },
 
     async mounted() {
-      this.toggleLoader();
+      const { applyFromRouter, toggleLoader } = this;
+      applyFromRouter();
+      toggleLoader();
+
       try {
         await this.$store.dispatch('FETCH_CURRENCIES');
 
-        this.toggleLoader();
+        toggleLoader();
       } catch (error) {
-        this.toggleLoader();
+        toggleLoader();
       }
     },
+
+    methods: {
+      applyFromRouter() {
+        const { savedCourse, savedPayment } = this;
+        if (savedCourse || savedPayment) {
+          this.baseСourse = savedCourse;
+          this.basePayment = savedPayment;
+        }
+      },
+      changed() {
+        const { baseСourse, basePayment } = this;
+        this.$router.push({ query: { c: baseСourse, p: basePayment } });
+      },
+    },
+
   };
 </script>
 
